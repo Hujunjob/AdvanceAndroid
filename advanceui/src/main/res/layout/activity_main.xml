@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.hiscene.advanceui.XfermodeView
+    <com.hiscene.advanceui.FilterView
         android:layout_width="200dp"
         android:layout_height="200dp"/>
 

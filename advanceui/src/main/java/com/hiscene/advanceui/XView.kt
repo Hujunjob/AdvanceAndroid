@@ -1,5 +1,6 @@
 package com.hiscene.advanceui
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
@@ -32,8 +33,7 @@ class XfermodeView @JvmOverloads constructor(
         mPaint = Paint()
         mPaint!!.color = Color.RED
         mPaint!!.style = Paint.Style.FILL_AND_STROKE
-        rectBitmap = createRectBitmap(mWidth, mHeight)
-        circleBitmap = createCircleBitmap(mWidth, mHeight)
+
         //禁止硬件加速
         setLayerType(View.LAYER_TYPE_SOFTWARE, null)
 
@@ -44,8 +44,11 @@ class XfermodeView @JvmOverloads constructor(
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         mWidth = MeasureSpec.getSize(widthMeasureSpec)
         mHeight = MeasureSpec.getSize(heightMeasureSpec)
+        rectBitmap = createRectBitmap(mWidth, mHeight)
+        circleBitmap = createCircleBitmap(mWidth, mHeight)
     }
 
+    @SuppressLint("DrawAllocation")
     protected override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
@@ -54,20 +57,26 @@ class XfermodeView @JvmOverloads constructor(
         //3.PorterDuffColorFilter
 
 
+        //离屏绘制
+        var layerId = canvas.saveLayer(
+            0f,
+            0f,
+            width.toFloat(),
+            height.toFloat(),
+            mPaint,
+            Canvas.ALL_SAVE_FLAG
+        )
 
-        //        //离屏绘制
-        var layerId = canvas.saveLayer(0f, 0f, width.toFloat(), height.toFloat(), mPaint, Canvas.ALL_SAVE_FLAG);
-
-        //        //目标图
+        //目标图
         canvas.drawBitmap(rectBitmap, 0f, 0f, mPaint)
-        //        //设置混合模式
-        mPaint!!.setXfermode(PorterDuffXfermode(PorterDuff.Mode.DST_IN))
-        //        //源图，重叠区域右下角部分
+        //设置混合模式
+        mPaint!!.setXfermode(PorterDuffXfermode(PorterDuff.Mode.SRC_OUT))
+        //源图，重叠区域右下角部分
         canvas.drawBitmap(circleBitmap, 0f, 0f, mPaint)
-        //        //清除混合模式
+        //清除混合模式
         mPaint!!.setXfermode(null)
-        //
-        canvas.restoreToCount(layerId);
+
+        canvas.restoreToCount(layerId)
 
     }
 
