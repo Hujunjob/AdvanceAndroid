@@ -1,4 +1,4 @@
-package com.hiscene.advanceui
+package com.hiscene.advanceui.bezier
 
 import android.content.Context
 import android.graphics.Canvas
@@ -7,6 +7,7 @@ import android.graphics.Path
 import android.graphics.PointF
 import android.util.AttributeSet
 import android.view.MotionEvent
+import com.hiscene.advanceui.BaseView
 
 /**
  * Created by junhu on 2019-11-07

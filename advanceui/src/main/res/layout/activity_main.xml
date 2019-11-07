@@ -5,8 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-
-<com.hiscene.advanceui.BezierView
+<com.hiscene.advanceui.qqdrag.DragBubbleView
+    app:name="hujun"
+    app:info="info"
+    app:bubble_color="@color/colorAccent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"/>
 
