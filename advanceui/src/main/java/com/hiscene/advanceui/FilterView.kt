@@ -35,14 +35,24 @@ class FilterView(context: Context?, attrs: AttributeSet?) : View(context, attrs)
          */
 //        filter = PorterDuffColorFilter(Color.RED,PorterDuff.Mode.DARKEN)
 
+        //胶片滤镜
         var colorMatrix = floatArrayOf(
-            1f,0f,0f,0f,100f,            //red
-            0f,1f,0f,0f,0f,            //green
-            0f,0f,1f,0f,0f,            //blue
+            -1f,0f,0f,0f,255f,            //red
+            0f,-1f,0f,0f,255f,            //green
+            0f,0f,-1f,0f,255f,            //blue
             0f,0f,0f,1f,0f             //alpha
         )
+//        filter = ColorMatrixColorFilter(colorMatrix)
 
-        filter = ColorMatrixColorFilter(colorMatrix)
+        //也可以用ColorMatrix()获得颜色矩阵
+        var cm = ColorMatrix()
+        //亮度调节
+        cm.setScale(1f,1f,1f,1f)
+        //饱和度调整(0:无色彩，1-原图，>1饱和度加强)
+        cm.setSaturation(0f)
+//        cm.setRotate()
+        filter = ColorMatrixColorFilter(cm)
+
         paint.colorFilter = filter
     }
 
@@ -53,5 +63,6 @@ class FilterView(context: Context?, attrs: AttributeSet?) : View(context, attrs)
         super.onDraw(canvas)
 
         canvas?.drawBitmap(bitmap,0f,0f,paint)
+
     }
 }
