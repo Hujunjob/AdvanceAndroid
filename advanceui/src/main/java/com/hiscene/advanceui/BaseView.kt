@@ -19,12 +19,12 @@ open class BaseView(context: Context?, attrs: AttributeSet?) : View(context, att
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         mWidth = MeasureSpec.getSize(widthMeasureSpec)
         mHeight = MeasureSpec.getSize(heightMeasureSpec)
-//        paint.strokeWidth = mHeight * 0.5f
     }
 
     init {
         paint = Paint(Paint.ANTI_ALIAS_FLAG)
         paint.color = Color.RED
+        paint.strokeWidth = 4f
         paint.style = Paint.Style.STROKE
     }
 }
