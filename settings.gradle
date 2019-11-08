@@ -1,2 +1,2 @@
-include ':app', ':advanceui'
+include ':app', ':advanceui', ':dispatchevent'
 rootProject.name='AdvanceAndroid'
