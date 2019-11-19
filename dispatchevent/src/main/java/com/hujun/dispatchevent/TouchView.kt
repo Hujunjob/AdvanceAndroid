@@ -13,4 +13,8 @@ class TouchView(context: Context?, attrs: AttributeSet?) : View(context, attrs) 
         println("onTouchEvent ${event?.action},${this.hashCode()}")
         return super.onTouchEvent(event)
     }
+
+    override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
+        return super.dispatchTouchEvent(event)
+    }
 }

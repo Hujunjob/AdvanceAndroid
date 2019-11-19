@@ -23,7 +23,8 @@ class MyKeyframeSet private constructor(){
         fun ofFloat(vararg values:FloatArray):MyKeyframeSet{
             var numFrames = values.size
             //关键帧初始化
-
+            var myKeyframeSet = MyKeyframeSet()
+            return myKeyframeSet
         }
     }
 }
