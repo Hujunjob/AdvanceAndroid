@@ -12,6 +12,7 @@ import java.nio.FloatBuffer
 
 /**
  * Created by junhu on 2019-11-25
+ * 负责渲染到屏幕
  */
 class ScreenFilter(
     context: Context,
@@ -20,6 +21,13 @@ class ScreenFilter(
 ) :
     BaseFilter(context, vertexSourceId, fragmentSourceId) {
 
+    override fun onReady(width: Int, height: Int) {
+        super.onReady(width, height)
+    }
+
+    override fun onDrawFrame(textureId: Int): Int {
+        return super.onDrawFrame(textureId)
+    }
 
 
 

@@ -3,8 +3,8 @@ package com.hujun.opengldemo
 import android.graphics.SurfaceTexture
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
+import com.hujun.opengldemo.filter.CameraFilter
 import com.hujun.opengldemo.filter.ScreenFilter
-import com.hujun.slamdemo.CameraEngine
 import com.hujun.slamdemo.CameraFactory
 import com.hujun.slamdemo.ICameraEngine
 import javax.microedition.khronos.egl.EGLConfig
@@ -15,17 +15,18 @@ import javax.microedition.khronos.opengles.GL10
  */
 class MyGLRenderer(var myGLSurface: MyGLSurface) : GLSurfaceView.Renderer,
     SurfaceTexture.OnFrameAvailableListener {
+    private lateinit var mCameraFilter: CameraFilter
     private lateinit var mTextureIds: IntArray
-    private lateinit var screenFilter: ScreenFilter
+    private lateinit var mScreenFilter: ScreenFilter
     var cameraEngine: ICameraEngine? = null
-    var mSurfaceTexture:SurfaceTexture? = null
+    var mSurfaceTexture: SurfaceTexture? = null
 
     var mtx = FloatArray(16)
 
     override fun onDrawFrame(gl: GL10?) {
         //在这里画画
         //1、清空画布，设置画布颜色，这里设置为红色
-        GLES20.glClearColor(255f,0f,0f,0f)
+        GLES20.glClearColor(255f, 0f, 0f, 0f)
         //设置清理模式
         //GL_COLOR_BUFFER_BIT 颜色缓存区
         //GL_DEPTH_BUFFER_BIT 深度缓冲区
@@ -38,17 +39,25 @@ class MyGLRenderer(var myGLSurface: MyGLSurface) : GLSurfaceView.Renderer,
         //获取旋转矩阵
         mSurfaceTexture?.getTransformMatrix(mtx)
 
-        screenFilter.onDrawFrame(mTextureIds[0],mtx)
+        //mTextureIds[0]是摄像头的渲染纹理
+        //先把数据渲染到FBO
+        mCameraFilter.mtx = mtx
+        var textureId = mCameraFilter.onDrawFrame(mTextureIds[0])
+
+        //采用类似链式调用
+        //每个Filter都会在上一个传递过来的textureId渲染数据
+        //然后将textureId传递下去，继续渲染
+        //最后用ScreenFilter将textureId渲染到屏幕上
+
+        textureId = mScreenFilter.onDrawFrame(textureId)
 
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         cameraEngine?.openCamera(true)
 
-        //设置gl窗口
-//        GLES20.glViewport(0,0,width,height)
-
-        screenFilter.onReady(width,height)
+        mScreenFilter.onReady(width, height)
+        mCameraFilter.onReady(width, height)
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
@@ -58,14 +67,16 @@ class MyGLRenderer(var myGLSurface: MyGLSurface) : GLSurfaceView.Renderer,
         //准备画布
         mTextureIds = IntArray(1)
         //通过OpenGL创建纹理id
-        GLES20.glGenTextures(mTextureIds.size,mTextureIds,0)
+        GLES20.glGenTextures(mTextureIds.size, mTextureIds, 0)
+
+
         //通过纹理id创建画布
         mSurfaceTexture = SurfaceTexture(mTextureIds[0])
         mSurfaceTexture?.setOnFrameAvailableListener(this)
         cameraEngine?.addSurfaceView(mSurfaceTexture!!)
 
-        screenFilter = ScreenFilter(myGLSurface.context)
-
+        mScreenFilter = ScreenFilter(myGLSurface.context)
+        mCameraFilter = CameraFilter(myGLSurface.context)
 
     }
 
@@ -74,5 +85,6 @@ class MyGLRenderer(var myGLSurface: MyGLSurface) : GLSurfaceView.Renderer,
         //请求渲染
         myGLSurface.requestRender()
     }
+
 
 }

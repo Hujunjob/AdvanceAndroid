@@ -65,7 +65,7 @@ class CameraEngine private constructor(var context: Context) : ICameraEngine {
 
     init {
         getCameraId()
-        camera = Camera.open(frontId)
+        camera = Camera.open(backId)
     }
 
     override fun openCamera(isFront: Boolean): Boolean {
@@ -102,7 +102,7 @@ class CameraEngine private constructor(var context: Context) : ICameraEngine {
         setCameraDisplayOrientation()
         camera.setPreviewCallbackWithBuffer { data, camera ->
             var size = camera.parameters.previewSize
-            Log.d(TAG, "preview: w=${size.width},h=${size.height},len=${data.size}")
+//            Log.d(TAG, "preview: w=${size.width},h=${size.height},len=${data.size}")
             camera.addCallbackBuffer(data)
             frameListener?.onNewFrame(data, previewWidth, previewHeight)
         }

@@ -16,4 +16,10 @@ void main() {
     //gl_FragColor 变量接收像素值
     //texture2D() : 采样器，采集aCoord的像素
     gl_FragColor = texture2D(vTexture,aCoord);
+
+    //添加灰度滤镜
+    //305911公式，简单的灰度滤镜
+//    vec4 rgba = texture2D(vTexture,aCoord);
+//    float gray = 0.30 * rgba.r + 0.59*rgba.g+0.11*rgba.b;
+//    gl_FragColor = vec4(gray,gray,gray,1.0);
 }

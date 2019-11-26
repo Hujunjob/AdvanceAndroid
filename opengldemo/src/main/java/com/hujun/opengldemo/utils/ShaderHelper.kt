@@ -76,17 +76,14 @@ class ShaderHelper {
             GLES20.glLinkProgram(mProgramId)
 
             val status = IntArray(1)
-            //4. 获取链接状态
-            GLES20.glGetShaderiv(fShaderId, GLES20.GL_LINK_STATUS, status, 0)
+            //获得状态
+            GLES20.glGetProgramiv(mProgramId, GLES20.GL_LINK_STATUS, status, 0)
             if (status[0] != GLES20.GL_TRUE) {
-//                throw IllegalStateException("链接片元着色器失败")
-                Log.d(TAG, "linkProgram: 链接片元着色器失败 : ${status[0]}")
-                return -1
-            }
-            GLES20.glGetShaderiv(vShaderId, GLES20.GL_LINK_STATUS, status, 0)
-            if (status[0] != GLES20.GL_TRUE) {
-//                throw IllegalStateException("链接顶点着色器失败")
-                Log.d(TAG, "linkProgram: 链接顶点着色器失败 : ${status[0]}")
+                Log.e(
+                    TAG,
+                    "linkProgram: 绑定program失败",
+                    IllegalStateException("link program:" + GLES20.glGetProgramInfoLog(mProgramId))
+                )
                 return -1
             }
 
@@ -102,14 +99,22 @@ class ShaderHelper {
             val vertexShaderId = compileVertexShader(vertexShader)
             if (vertexShaderId < 0) {
                 return -1
+            } else {
+                Log.d(TAG, "linkProgram: 顶点着色器编译成功")
             }
+
             val textureShaderId = compileTextureShader(textureShader)
             if (textureShaderId < 0) {
                 GLES20.glDeleteShader(vertexShaderId)
                 return -1
+            } else {
+                Log.d(TAG, "linkProgram: 片元着色器编译成功")
             }
 
             val programId = linkProgram(vertexShaderId, textureShaderId)
+            if (programId > 0) {
+                Log.d(TAG, "linkProgram:链接成功")
+            }
             //四、释放、删除着色器
             //链接完成后，着色器都放到了OpenGL程序Program里，则着色器可以删除了
             GLES20.glDeleteShader(vertexShaderId)

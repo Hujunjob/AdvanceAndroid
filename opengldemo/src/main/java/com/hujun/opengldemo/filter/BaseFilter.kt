@@ -3,6 +3,7 @@ package com.hujun.opengldemo.filter
 import android.content.Context
 import android.opengl.GLES11Ext
 import android.opengl.GLES20
+import android.util.Log
 import com.hujun.opengldemo.utils.BufferHelper
 import com.hujun.opengldemo.utils.ShaderHelper
 import com.hujun.opengldemo.utils.TextResourceReader
@@ -13,22 +14,26 @@ import java.nio.FloatBuffer
  * Created by junhu on 2019-11-26
  */
 abstract class BaseFilter(context: Context, vertexSourceId: Int, fragmentSourceId: Int) {
-    private var vTexture: Int = 0
-    private var vCoord: Int = 0
-    private var vPosition: Int = 0
+    protected var vTexture: Int = 0
+    protected var vCoord: Int = 0
+    protected var vPosition: Int = 0
     protected var mHeight: Int = 0
     protected var mWidth: Int = 0
     protected var mProgramId: Int = 0
     protected lateinit var mTextureBuffer: FloatBuffer
     protected lateinit var mVertexBuffer: FloatBuffer
 
+    companion object{
+        private val TAG = this::class.java.name.replace("${'$'}Companion","").split(".").last()
+    }
+
     init {
 
         //初始化顶点坐标
-        initVertex()
+        this.initVertex()
 
         //初始化纹理坐标
-        initTexture()
+        this.initTexture()
 
         //初始化OpenGL程序Program
         initShader(context, vertexSourceId, fragmentSourceId)
@@ -47,7 +52,7 @@ abstract class BaseFilter(context: Context, vertexSourceId: Int, fragmentSourceI
         mHeight = height
     }
 
-    protected fun onDrawFrame(textureId: Int): Int {
+    open fun onDrawFrame(textureId: Int): Int {
 
         //1、设置视窗的宽高
         GLES20.glViewport(0, 0, mWidth, mHeight)
@@ -93,13 +98,16 @@ abstract class BaseFilter(context: Context, vertexSourceId: Int, fragmentSourceI
 
         //通知OpenGL绘制
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
+
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,0)
         return textureId
     }
 
     /**
      * 获取shader里各个属性的索引值
      */
-    private fun initShaderIndex() {
+    open fun initShaderIndex() {
+        Log.d(TAG, "initShaderIndex: ")
         //五、获取着色器程序变量的索引，通过索引来赋值
         //1. 顶点各个变量的索引
         vPosition = GLES20.glGetAttribLocation(mProgramId, "vPosition")
@@ -121,22 +129,25 @@ abstract class BaseFilter(context: Context, vertexSourceId: Int, fragmentSourceI
         mProgramId = ShaderHelper.linkProgram(vertext, fragment)
         if (mProgramId < 0) {
             throw IllegalStateException("初始化OpenGL失败")
+        }else{
+            Log.d(TAG, "initShader: linkProgram 成功")
         }
     }
 
     /**
      * 初始化纹理坐标
      */
-    private fun initTexture() {
+    open fun initTexture() {
+        Log.d(TAG, "initTexture: ")
         //纹理的坐标系采用Android系统坐标系
         //屏幕边缘4个点
         //需要跟顶点坐标的顺序一一对应，且需要是OpenGL坐标系和Android屏幕坐标系对应
-//        val t = floatArrayOf(
-//            0f, 0f,
-//            0f, 1f,
-//            1f, 0f,
-//            1f, 1f
-//        )
+        val TEXTURE = floatArrayOf(
+            0f, 0f,
+            0f, 1f,
+            1f, 0f,
+            1f, 1f
+        )
 
         //后摄顺时针旋转90度
 //        val t = floatArrayOf(
@@ -154,19 +165,20 @@ abstract class BaseFilter(context: Context, vertexSourceId: Int, fragmentSourceI
 //            0f, 1f
 //        )
         //前摄逆时针旋转90度后再左右镜像
-        val TEXTURE = floatArrayOf(
-            1f, 1f,
-            0f, 1f,
-            1f, 0f,
-            0f, 0f
-        )
+//        val TEXTURE = floatArrayOf(
+//            1f, 1f,
+//            0f, 1f,
+//            1f, 0f,
+//            0f, 0f
+//        )
         mTextureBuffer = BufferHelper.getFloatBuffer(TEXTURE)
     }
 
     /**
      * 初始化顶点坐标
      */
-    private fun initVertex() {
+    open fun initVertex() {
+        Log.d(TAG, "initVertex: ")
         //采用OpenGL的坐标系
         //屏幕边缘4个点
         //不能采用顺时针或逆时针依次获取4个点，因为这样无法无法组成闭合的矩形
