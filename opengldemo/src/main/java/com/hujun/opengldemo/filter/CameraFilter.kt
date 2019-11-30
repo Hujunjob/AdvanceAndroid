@@ -7,7 +7,6 @@ import android.util.Log
 import com.hujun.opengldemo.R
 import com.hujun.opengldemo.utils.BufferHelper
 import com.hujun.opengldemo.utils.TextureHelper
-import java.nio.Buffer
 
 /**
  * Created by junhu on 2019-11-26
@@ -130,6 +129,17 @@ class CameraFilter(
 //        ): Unit
         //参数分别为：顶点坐标的索引，每个值的长度，值类型，是否归一化，步进（每次取完size后跳过多少个值取下一次值），数据
         GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false, 0, mVertexBuffer)
+
+        // C function void glVertexAttribPointer ( GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLint offset )
+//        external fun glVertexAttribPointer(
+//            indx: Int,
+//            size: Int,
+//            type: Int,
+//            normalized: Boolean,
+//            stride: Int,
+//            offset: Int
+//        )
+//        GLES20.glVertexAttribPointer()
 
         //传递值后需要激活
         GLES20.glEnableVertexAttribArray(vPosition)

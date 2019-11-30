@@ -32,7 +32,7 @@ class CameraEngine private constructor(var context: Context) : ICameraEngine {
 
     override fun addSurfaceView(surfaceTexture: SurfaceTexture) {
         Log.d(TAG, "addSurfaceView: ")
-        camera.setPreviewTexture(surfaceTexture) //如果这个texture并不是在屏幕上的，则是离屏渲染
+        mCamera?.setPreviewTexture(surfaceTexture) //如果这个texture并不是在屏幕上的，则是离屏渲染
     }
 
     override fun removeSurfaceView(surfaceTexture: SurfaceTexture) {
@@ -40,7 +40,7 @@ class CameraEngine private constructor(var context: Context) : ICameraEngine {
         closeCamera()
     }
 
-    private var camera: Camera
+    private var mCamera: Camera?=null
     private var frontId = -1
     private var backId = -1
 
@@ -65,16 +65,16 @@ class CameraEngine private constructor(var context: Context) : ICameraEngine {
 
     init {
         getCameraId()
-        camera = Camera.open(backId)
+        mCamera = Camera.open(backId)
     }
 
     override fun openCamera(isFront: Boolean): Boolean {
         Log.d(TAG, "openCamera: ")
 
-        camera.parameters.supportedPreviewSizes.forEach {
+        mCamera?.parameters!!.supportedPreviewSizes.forEach {
             Log.d(TAG, "openCamera: supported preview size : w=${it.width},h=${it.height}")
         }
-        var params = camera.parameters
+        var params = mCamera?.parameters!!
 
         params.setPreviewSize(previewWidth, previewHeight)
         params.previewFormat = ImageFormat.NV21
@@ -90,7 +90,7 @@ class CameraEngine private constructor(var context: Context) : ICameraEngine {
         PixelFormat.getPixelFormatInfo(pixelformat, pixelinfo)
         val bufSize = previewWidth * previewHeight * pixelinfo.bitsPerPixel / 8
         for (i in 0..4) {
-            camera.addCallbackBuffer(ByteArray(bufSize))
+            mCamera?.addCallbackBuffer(ByteArray(bufSize))
         }
 
 //        for (i in 0..2) {
@@ -98,9 +98,12 @@ class CameraEngine private constructor(var context: Context) : ICameraEngine {
 //            camera.addCallbackBuffer(byteArray)
 //        }
 
-        camera.parameters = params
+        mCamera?.parameters = params
         setCameraDisplayOrientation()
-        camera.setPreviewCallbackWithBuffer { data, camera ->
+        mCamera?.setPreviewCallbackWithBuffer { data, camera ->
+            if (mCamera==null){
+                return@setPreviewCallbackWithBuffer
+            }
             var size = camera.parameters.previewSize
 //            Log.d(TAG, "preview: w=${size.width},h=${size.height},len=${data.size}")
             camera.addCallbackBuffer(data)
@@ -110,7 +113,7 @@ class CameraEngine private constructor(var context: Context) : ICameraEngine {
         var cameraInfo = Camera.CameraInfo()
         var orientation = cameraInfo.orientation
         Log.d(TAG, "openCamera: orientation=$orientation")
-        camera.startPreview()
+        mCamera?.startPreview()
 
         return true
     }
@@ -142,7 +145,7 @@ class CameraEngine private constructor(var context: Context) : ICameraEngine {
             TAG,
             "setCameraDisplayOrientation: camera orientation=${info.orientation},result= $result"
         )
-        camera.setDisplayOrientation(result)
+        mCamera?.setDisplayOrientation(result)
     }
 
     override fun setResolution(width: Int, height: Int) {
@@ -165,7 +168,7 @@ class CameraEngine private constructor(var context: Context) : ICameraEngine {
 
     override fun closeCamera(): Boolean {
         Log.d(TAG, "closeCamera: ")
-        camera.stopPreview()
+        mCamera?.stopPreview()
 //        camera.release()
         return true
     }
@@ -182,5 +185,7 @@ class CameraEngine private constructor(var context: Context) : ICameraEngine {
     override fun release() {
         Log.d(TAG, "release: ")
         closeCamera()
+        mCamera?.release()
+        mCamera = null
     }
 }

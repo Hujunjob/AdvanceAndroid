@@ -87,7 +87,6 @@ abstract class BaseFilter(context: Context, vertexSourceId: Int, fragmentSourceI
         //4、变换矩阵
 //        GLES20.glUniformMatrix4fv(vMatrix, 1, false, mtx, 0)
 
-
         //片元着色器
         //首先激活图层
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0)

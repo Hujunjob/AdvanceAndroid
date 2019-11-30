@@ -18,16 +18,8 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("NewApi")
     private fun checkPermissions() {
-        if(checkSelfPermission(android.Manifest.permission.CAMERA)!=PackageManager.PERMISSION_GRANTED){
-            requestPermissions(arrayOf(android.Manifest.permission.CAMERA),1)
+        if (checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(android.Manifest.permission.CAMERA), 1)
         }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 }

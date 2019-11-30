@@ -7,7 +7,7 @@ import android.opengl.GLES20
  */
 class TextureHelper {
     companion object{
-        fun genTextures(textures:IntArray){
+        fun genTextures(textures:IntArray,target:Int = GLES20.GL_TEXTURE_2D){
             //首先生成纹理数组
             GLES20.glGenTextures(textures.size,textures,0)
 
@@ -21,7 +21,7 @@ class TextureHelper {
 //                    target: Int,  纹理目标
 //                    texture: Int  纹理id
 //                ): Unit
-                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,it)
+                GLES20.glBindTexture(target,it)
 
                 //2.配置纹理
                 //2.1 设置过滤参数
@@ -50,7 +50,7 @@ class TextureHelper {
                 //操作完成后解绑
                 //3.解绑纹理
                 //传0表示与当前纹理解绑
-                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,0)
+                GLES20.glBindTexture(target,0)
             }
         }
     }
