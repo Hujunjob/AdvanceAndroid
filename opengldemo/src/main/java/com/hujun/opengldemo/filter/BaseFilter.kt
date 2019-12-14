@@ -3,7 +3,11 @@ package com.hujun.opengldemo.filter
 import android.content.Context
 import android.opengl.GLES11Ext
 import android.opengl.GLES20
+import android.opengl.GLES30.glReadPixels
+import android.opengl.GLES32
 import android.util.Log
+import com.hujun.myapplication.entity.BaseEntity
+import com.hujun.myapplication.utils.MathUtils
 import com.hujun.opengldemo.utils.BufferHelper
 import com.hujun.opengldemo.utils.ShaderHelper
 import com.hujun.opengldemo.utils.TextResourceReader
@@ -23,8 +27,8 @@ abstract class BaseFilter(context: Context, vertexSourceId: Int, fragmentSourceI
     protected lateinit var mTextureBuffer: FloatBuffer
     protected lateinit var mVertexBuffer: FloatBuffer
 
-    companion object{
-        private val TAG = this::class.java.name.replace("${'$'}Companion","").split(".").last()
+    companion object {
+        private val TAG = this::class.java.name.replace("${'$'}Companion", "").split(".").last()
     }
 
     init {
@@ -53,7 +57,7 @@ abstract class BaseFilter(context: Context, vertexSourceId: Int, fragmentSourceI
     }
 
     open fun onDrawFrame(textureId: Int): Int {
-
+        checkGLError("base draw before")
         //1、设置视窗的宽高
         GLES20.glViewport(0, 0, mWidth, mHeight)
 
@@ -74,7 +78,7 @@ abstract class BaseFilter(context: Context, vertexSourceId: Int, fragmentSourceI
 //            ptr: Buffer?
 //        ): Unit
         //参数分别为：顶点坐标的索引，每个值的长度，值类型，是否归一化，步进（每次取完size后跳过多少个值取下一次值），数据
-        GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false, 0, mVertexBuffer)
+        GLES20.glVertexAttribPointer(vPosition, 3, GLES20.GL_FLOAT, false, 0, mVertexBuffer)
 
         //传递值后需要激活
         GLES20.glEnableVertexAttribArray(vPosition)
@@ -98,7 +102,9 @@ abstract class BaseFilter(context: Context, vertexSourceId: Int, fragmentSourceI
         //通知OpenGL绘制
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
 
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,0)
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0)
+
+        checkGLError("base draw after")
         return textureId
     }
 
@@ -128,7 +134,7 @@ abstract class BaseFilter(context: Context, vertexSourceId: Int, fragmentSourceI
         mProgramId = ShaderHelper.linkProgram(vertext, fragment)
         if (mProgramId < 0) {
             throw IllegalStateException("初始化OpenGL失败")
-        }else{
+        } else {
             Log.d(TAG, "initShader: linkProgram 成功")
         }
     }
@@ -173,6 +179,14 @@ abstract class BaseFilter(context: Context, vertexSourceId: Int, fragmentSourceI
         mTextureBuffer = BufferHelper.getFloatBuffer(TEXTURE)
     }
 
+
+    fun checkGLError(msg: String = "") {
+        var error = GLES32.glGetError()
+        if (error != GLES32.GL_NO_ERROR) {
+            Log.e(TAG, "$msg checkGLError: ${MathUtils.intToHex(error)}")
+        }
+    }
+
     /**
      * 初始化顶点坐标
      */
@@ -183,10 +197,10 @@ abstract class BaseFilter(context: Context, vertexSourceId: Int, fragmentSourceI
         //不能采用顺时针或逆时针依次获取4个点，因为这样无法无法组成闭合的矩形
         // 例如顺时针四个点分别为 a b c d，则输入进去的点为a b d c
         val VERTEX = floatArrayOf(
-            -1f, 1f,
-            -1f, -1f,
-            1f, 1f,
-            1f, -1f
+            -1f, 1f, 0f,
+            -1f, -1f, 0f,
+            1f, 1f, 0f,
+            1f, -1f, 0f
         )
         mVertexBuffer = BufferHelper.getFloatBuffer(VERTEX)
 

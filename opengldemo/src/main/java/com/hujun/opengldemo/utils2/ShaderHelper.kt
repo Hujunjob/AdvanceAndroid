@@ -1,6 +1,6 @@
-package com.hujun.opengldemo.utils2
+package com.hujun.opengldemo.utils
 
-import android.opengl.GLES20
+import android.opengl.GLES32
 import android.util.Log
 
 /**
@@ -12,7 +12,7 @@ class ShaderHelper {
 
         /**
          * 编译着色器
-         * @param type : 着色器类型，GLES20.GL_VERTEX_SHADER和GLES20.GL_FRAGMENT_SHADER
+         * @param type : 着色器类型，GLES32.GL_VERTEX_SHADER和GLES32.GL_FRAGMENT_SHADER
          * @param shader : 着色器代码
          * @return 着色器id
          */
@@ -20,21 +20,25 @@ class ShaderHelper {
 
             //一、配置顶点着色器
             //1、创建着色器
-            val vShaderId = GLES20.glCreateShader(type)
+            val vShaderId = GLES32.glCreateShader(type)
+
+            Log.d(TAG, "compileShader: " + shader)
 
             //2、绑定代码到着色器上面，把着色器里的代码加载的着色器里
-            GLES20.glShaderSource(vShaderId, shader)
+            GLES32.glShaderSource(vShaderId, shader)
 
             //3、编译着色器代码
-            GLES20.glCompileShader(vShaderId)
+            GLES32.glCompileShader(vShaderId)
 
             val status = IntArray(1)
             //4、主动获取编译是否成功状态
-            GLES20.glGetShaderiv(vShaderId, GLES20.GL_COMPILE_STATUS, status, 0)
+            GLES32.glGetShaderiv(vShaderId, GLES32.GL_COMPILE_STATUS, status, 0)
 
-            if (status[0] != GLES20.GL_TRUE) {
+            if (status[0] != GLES32.GL_TRUE) {
 //                throw IllegalStateException("配置顶点着色器失败")
-                Log.e(TAG, "compileShader: 配置顶点着色器失败 ${status[0]}")
+                var info = GLES32.glGetShaderInfoLog(vShaderId)
+                Log.e(TAG, "compileShader: 配置着色器失败 type=$type,code= ${status[0]}, info : $info")
+
                 return -1
             }
             return vShaderId
@@ -46,7 +50,7 @@ class ShaderHelper {
          * @return 顶点着色器id，返回小于0代表失败
          */
         fun compileVertexShader(shader: String): Int {
-            return compileShader(GLES20.GL_VERTEX_SHADER, shader)
+            return compileShader(GLES32.GL_VERTEX_SHADER, shader)
         }
 
         /**
@@ -55,7 +59,7 @@ class ShaderHelper {
          * @return 片元着色器id，返回小于0代表失败
          */
         fun compileTextureShader(shader: String): Int {
-            return compileShader(GLES20.GL_FRAGMENT_SHADER, shader)
+            return compileShader(GLES32.GL_FRAGMENT_SHADER, shader)
         }
 
 
@@ -66,31 +70,31 @@ class ShaderHelper {
         fun linkProgram(vShaderId: Int, fShaderId: Int): Int {
             //三、着色器程序
             //1. 创建新的OpenGL程序
-            var mProgramId = GLES20.glCreateProgram()
+            var mProgramId = GLES32.glCreateProgram()
 
             //2. 将着色器附加到程序，两个着色器都附加
-            GLES20.glAttachShader(mProgramId, vShaderId)
-            GLES20.glAttachShader(mProgramId, fShaderId)
+            GLES32.glAttachShader(mProgramId, vShaderId)
+            GLES32.glAttachShader(mProgramId, fShaderId)
 
             //3. 链接程序
-            GLES20.glLinkProgram(mProgramId)
+            GLES32.glLinkProgram(mProgramId)
 
             val status = IntArray(1)
             //获得状态
-            GLES20.glGetProgramiv(mProgramId, GLES20.GL_LINK_STATUS, status, 0)
-            if (status[0] != GLES20.GL_TRUE) {
+            GLES32.glGetProgramiv(mProgramId, GLES32.GL_LINK_STATUS, status, 0)
+            if (status[0] != GLES32.GL_TRUE) {
                 Log.e(
-                    TAG,
-                    "linkProgram: 绑定program失败",
-                    IllegalStateException("link program:" + GLES20.glGetProgramInfoLog(mProgramId))
+                        TAG,
+                        "linkProgram: 绑定program失败",
+                        IllegalStateException("link program:" + GLES32.glGetProgramInfoLog(mProgramId))
                 )
                 return -1
             }
 
             //四、释放、删除着色器
             //链接完成后，着色器都放到了OpenGL程序Program里，则着色器可以删除了
-            GLES20.glDeleteShader(vShaderId)
-            GLES20.glDeleteShader(fShaderId)
+            GLES32.glDeleteShader(vShaderId)
+            GLES32.glDeleteShader(fShaderId)
 
             return mProgramId
         }
@@ -105,7 +109,7 @@ class ShaderHelper {
 
             val textureShaderId = compileTextureShader(textureShader)
             if (textureShaderId < 0) {
-                GLES20.glDeleteShader(vertexShaderId)
+                GLES32.glDeleteShader(vertexShaderId)
                 return -1
             } else {
                 Log.d(TAG, "linkProgram: 片元着色器编译成功")
@@ -117,8 +121,8 @@ class ShaderHelper {
             }
             //四、释放、删除着色器
             //链接完成后，着色器都放到了OpenGL程序Program里，则着色器可以删除了
-            GLES20.glDeleteShader(vertexShaderId)
-            GLES20.glDeleteShader(textureShaderId)
+            GLES32.glDeleteShader(vertexShaderId)
+            GLES32.glDeleteShader(textureShaderId)
             return programId
         }
 
@@ -126,12 +130,12 @@ class ShaderHelper {
          * 验证程序
          */
         fun validateProgram(programId: Int): Boolean {
-            GLES20.glValidateProgram(programId)
+            GLES32.glValidateProgram(programId)
             val status = IntArray(1)
-            GLES20.glGetProgramiv(programId, GLES20.GL_VALIDATE_STATUS, status, 0)
+            GLES32.glGetProgramiv(programId, GLES32.GL_VALIDATE_STATUS, status, 0)
             Log.e(
-                TAG,
-                "validateProgram: ${status[0]}, 程序日志：${GLES20.glGetProgramInfoLog(programId)}"
+                    TAG,
+                    "validateProgram: ${status[0]}, 程序日志：${GLES32.glGetProgramInfoLog(programId)}"
             )
             return status[0] != 0
         }

@@ -4,15 +4,17 @@ import android.graphics.SurfaceTexture
 import android.opengl.GLES11Ext
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
-import android.util.Log
 import com.hiscene.agoraengine.opengl.ShaderFilter
+import android.opengl.*
+import android.util.Log
+import com.hujun.myapplication.entity.Triangle
+import com.hujun.myapplication.utils.MathUtils
+import com.hujun.myapplication.utils.ShaderProgram
+import com.hujun.opengldemo.entity.Cube
 import com.hujun.opengldemo.filter.CameraFilter
 import com.hujun.opengldemo.filter.ScreenFilter
-import com.hujun.opengldemo.rendering.ObjectRenderer
-import com.hujun.opengldemo.utils.TextureHelper
 import com.hujun.slamdemo.CameraFactory
 import com.hujun.slamdemo.ICameraEngine
-import java.io.IOException
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -22,11 +24,13 @@ import javax.microedition.khronos.opengles.GL10
 class MyGLRenderer(var myGLSurface: MyGLSurface) : GLSurfaceView.Renderer,
     SurfaceTexture.OnFrameAvailableListener {
     private lateinit var mCameraFilter: CameraFilter
-    private lateinit var mTextureIds: IntArray
+//    private lateinit var mTextureIds: IntArray
+    private var mCameraTexureId = 0
     private lateinit var mScreenFilter: ScreenFilter
     var cameraEngine: ICameraEngine? = null
     var mSurfaceTexture: SurfaceTexture? = null
-    private val mVirtualObject: ObjectRenderer = ObjectRenderer()
+    private var triangle: Triangle? = null
+    private var cube: Cube? = null
     var mtx = FloatArray(16)
     // Get projection matrix.
     // Get projection matrix.
@@ -48,6 +52,7 @@ class MyGLRenderer(var myGLSurface: MyGLSurface) : GLSurfaceView.Renderer,
 
     }
 
+
     override fun onDrawFrame(gl: GL10?) {
         //在这里画画
         //1、清空画布，设置画布颜色，这里设置为红色
@@ -56,7 +61,7 @@ class MyGLRenderer(var myGLSurface: MyGLSurface) : GLSurfaceView.Renderer,
         //GL_COLOR_BUFFER_BIT 颜色缓存区
         //GL_DEPTH_BUFFER_BIT 深度缓冲区
         //GL_STENCIL_BUFFER_BIT 模型缓冲区
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+        GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT or GLES20.GL_COLOR_BUFFER_BIT)
 
         //2、输出摄像头数据
         //更新纹理
@@ -67,19 +72,36 @@ class MyGLRenderer(var myGLSurface: MyGLSurface) : GLSurfaceView.Renderer,
         //mTextureIds[0]是摄像头的渲染纹理
         //先把数据渲染到FBO
         mCameraFilter.mtx = mtx
-        var textureId = mCameraFilter.onDrawFrame(mTextureIds[0])
+        val textureId = mCameraFilter.onDrawFrame(mCameraTexureId)
 
+//        triangle?.draw()
+
+        cube?.draw()
+
+        checkGLError("1")
+
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0)
+        //解绑纹理
+        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, 0)
+        checkGLError("2")
         //采用类似链式调用
         //每个Filter都会在上一个传递过来的textureId渲染数据
         //然后将textureId传递下去，继续渲染
         //最后用ScreenFilter将textureId渲染到屏幕上
+//        mScreenFilter.onDrawFrame(textureId)
 
-        textureId = mScreenFilter.onDrawFrame(textureId)
+    }
+
 
 //        shaderFilter.draw()
         // Update and draw the model and its shadow.
 //        mVirtualObject.updateModelMatrix(mAnchorMatrix, mScaleFactor)
 //        mVirtualObject.draw(viewmtx, projmtx, 1f)
+    fun checkGLError(msg: String = "") {
+        var error = GLES32.glGetError()
+        if (error != GLES32.GL_NO_ERROR) {
+            Log.e(TAG, "$msg checkGLError: ${MathUtils.intToHex(error)}")
+        }
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
@@ -87,6 +109,8 @@ class MyGLRenderer(var myGLSurface: MyGLSurface) : GLSurfaceView.Renderer,
 
         mScreenFilter.onReady(width, height)
         mCameraFilter.onReady(width, height)
+
+        GLES20.glEnable(GLES20.GL_DEPTH_TEST)
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
@@ -94,16 +118,16 @@ class MyGLRenderer(var myGLSurface: MyGLSurface) : GLSurfaceView.Renderer,
             CameraFactory.createCameraEngine(CameraFactory.CameraType.CAMERA1, myGLSurface.context)
 
         //准备画布
-        mTextureIds = IntArray(1)
-        TextureHelper.genTextures(mTextureIds,GLES11Ext.GL_TEXTURE_EXTERNAL_OES)
+        var mTextureIds = IntArray(1)
         //通过OpenGL创建纹理id
-//        GLES20.glGenTextures(mTextureIds.size, mTextureIds, 0)
+        GLES20.glGenTextures(1, mTextureIds, 0)
 
+        mCameraTexureId = mTextureIds[0]
 
         //通过纹理id创建画布
-        mSurfaceTexture = SurfaceTexture(mTextureIds[0])
+//        mSurfaceTexture = SurfaceTexture(mTextureIds[0])
 
-
+        mSurfaceTexture = SurfaceTexture(mCameraTexureId)
         mSurfaceTexture?.setOnFrameAvailableListener(this)
         cameraEngine?.addSurfaceView(mSurfaceTexture!!)
 
@@ -119,7 +143,11 @@ class MyGLRenderer(var myGLSurface: MyGLSurface) : GLSurfaceView.Renderer,
 //        } catch (e: IOException) {
 //            Log.e(TAG, "Failed to read obj file")
 //        }
+        generateTriangle()
+        generateCube()
     }
+
+
 
     //画布有可用数据时回调
     override fun onFrameAvailable(surfaceTexture: SurfaceTexture?) {
@@ -127,5 +155,25 @@ class MyGLRenderer(var myGLSurface: MyGLSurface) : GLSurfaceView.Renderer,
         myGLSurface.requestRender()
     }
 
+
+    private fun generateTriangle() {
+        val triangleShader = ShaderProgram(
+            myGLSurface.context,
+            R.raw.triangle_vertex,
+            R.raw.triangle_fragment
+        )
+        triangleShader.linkProgram()
+        triangle = Triangle(triangleShader.mProgram)
+    }
+
+
+    private fun generateCube() {
+        val cubeProgram = ShaderProgram(
+            myGLSurface.context,
+            R.raw.cube_vertex, R.raw.cube_fragment
+        )
+        cubeProgram.linkProgram()
+        cube = Cube(myGLSurface.context, cubeProgram.mProgram)
+    }
 
 }
