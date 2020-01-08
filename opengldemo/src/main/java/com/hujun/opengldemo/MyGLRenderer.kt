@@ -76,7 +76,10 @@ class MyGLRenderer(var myGLSurface: MyGLSurface) : GLSurfaceView.Renderer,
 
 //        triangle?.draw()
 
-        cube?.draw()
+
+//        GLES20.glEnable(GLES20.GL_DEPTH_TEST)
+//        cube?.draw()
+//        GLES20.glDisable(GLES20.GL_DEPTH_TEST)
 
         checkGLError("1")
 
@@ -88,7 +91,7 @@ class MyGLRenderer(var myGLSurface: MyGLSurface) : GLSurfaceView.Renderer,
         //每个Filter都会在上一个传递过来的textureId渲染数据
         //然后将textureId传递下去，继续渲染
         //最后用ScreenFilter将textureId渲染到屏幕上
-//        mScreenFilter.onDrawFrame(textureId)
+        mScreenFilter.onDrawFrame(textureId)
 
     }
 
@@ -110,7 +113,6 @@ class MyGLRenderer(var myGLSurface: MyGLSurface) : GLSurfaceView.Renderer,
         mScreenFilter.onReady(width, height)
         mCameraFilter.onReady(width, height)
 
-        GLES20.glEnable(GLES20.GL_DEPTH_TEST)
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
