@@ -2,7 +2,6 @@ package com.hujun.myapplication.entity
 
 import android.graphics.BitmapFactory
 import android.opengl.GLES30
-import android.opengl.GLES32
 import android.util.Log
 import com.hujun.myapplication.utils.BufferHelper
 import com.hujun.myapplication.utils.MathUtils
@@ -30,7 +29,7 @@ abstract class BaseEntity(program: Int) {
     protected var mHeight = 0
 
     init {
-        GLES32.glUseProgram(mProgram)
+        GLES30.glUseProgram(mProgram)
         this.initVertex()
         this.generaVAO()
         this.generateVBO()
@@ -39,9 +38,9 @@ abstract class BaseEntity(program: Int) {
     }
 
     protected open fun afterInit() {
-        GLES32.glBindVertexArray(0)
-        GLES32.glBindBuffer(GLES32.GL_ARRAY_BUFFER, 0)
-        GLES32.glBindBuffer(GLES32.GL_ELEMENT_ARRAY_BUFFER, 0)
+        GLES30.glBindVertexArray(0)
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, 0)
+        GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, 0)
     }
 
     open fun sizeChanged(width: Int, height: Int) {
@@ -54,7 +53,7 @@ abstract class BaseEntity(program: Int) {
     abstract fun initVertex()
 
     open fun release() {
-        GLES32.glDeleteProgram(mProgram)
+        GLES30.glDeleteProgram(mProgram)
     }
 
     companion object {
@@ -62,25 +61,25 @@ abstract class BaseEntity(program: Int) {
     }
 
     fun checkGLError(msg: String = "") {
-        var error = GLES32.glGetError()
-        if (error != GLES32.GL_NO_ERROR) {
+        var error = GLES30.glGetError()
+        if (error != GLES30.GL_NO_ERROR) {
             Log.e(TAG, "$msg checkGLError: ${MathUtils.intToHex(error)}")
         }
     }
 
     protected open fun generateVBO(): Int {
-        GLES32.glGenBuffers(1, vbos, 0)
+        GLES30.glGenBuffers(1, vbos, 0)
         checkGLError("generateVBO")
 
         VBO = vbos[0]
 
-        GLES32.glBindBuffer(GLES32.GL_ARRAY_BUFFER, VBO)
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, VBO)
 
-        GLES32.glBufferData(
-            GLES32.GL_ARRAY_BUFFER,
+        GLES30.glBufferData(
+            GLES30.GL_ARRAY_BUFFER,
             mVertex.size * SIZE_OF_FLOAT,
             BufferHelper.generateBuffer(mVertex),
-            GLES32.GL_STATIC_DRAW
+            GLES30.GL_STATIC_DRAW
         )
         return VBO
     }
@@ -90,11 +89,11 @@ abstract class BaseEntity(program: Int) {
     protected open fun generaVAO() {
         var vaos = IntArray(1)
 
-        GLES32.glGenVertexArrays(1, vaos, 0)
+        GLES30.glGenVertexArrays(1, vaos, 0)
 
         VAO = vaos[0]
 
-        GLES32.glBindVertexArray(VAO)
+        GLES30.glBindVertexArray(VAO)
     }
 
     protected fun setUniform1i(uniformName:String,uniform:Int){

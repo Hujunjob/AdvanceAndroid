@@ -2,7 +2,6 @@ package com.hujun.opengldemo.entity
 
 import android.content.Context
 import android.opengl.GLES30
-import android.opengl.GLES32
 import android.opengl.Matrix
 import com.hujun.myapplication.entity.BaseEntity
 import com.hujun.myapplication.utils.TextureHelper
@@ -81,7 +80,7 @@ class Cube(context: Context, program: Int) : BaseEntity(program) {
     private var frameCount=0
     override fun draw() {
         checkGLError("draw before")
-        GLES32.glUseProgram(mProgram)
+        GLES30.glUseProgram(mProgram)
         GLES30.glBindVertexArray(VAO)
 
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)

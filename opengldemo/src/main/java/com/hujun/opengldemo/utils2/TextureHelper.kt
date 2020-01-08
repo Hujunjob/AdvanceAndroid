@@ -2,7 +2,7 @@ package com.hujun.myapplication.utils
 
 import android.content.Context
 import android.graphics.BitmapFactory
-import android.opengl.GLES32
+import android.opengl.GLES30
 import android.opengl.GLU
 import android.opengl.GLUtils
 
@@ -15,40 +15,40 @@ class TextureHelper {
             var bitmap = BitmapFactory.decodeResource(context.resources, resourceId)
 
             var textures = IntArray(1)
-            GLES32.glGenTextures(1, textures, 0)
+            GLES30.glGenTextures(1, textures, 0)
 
             var texture = textures[0]
-            GLES32.glBindTexture(GLES32.GL_TEXTURE_2D, texture)
+            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, texture)
 
             //设置周围多了的环绕方式
-            GLES32.glTexParameteri(GLES32.GL_TEXTURE_2D, GLES32.GL_TEXTURE_WRAP_S, GLES32.GL_REPEAT)
-            GLES32.glTexParameteri(GLES32.GL_TEXTURE_2D, GLES32.GL_TEXTURE_WRAP_T, GLES32.GL_REPEAT)
+            GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_S, GLES30.GL_REPEAT)
+            GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_REPEAT)
 
             //设置图片不够大，被拉伸时的过滤方式
-            GLES32.glTexParameteri(
-                    GLES32.GL_TEXTURE_2D,
-                    GLES32.GL_TEXTURE_MIN_FILTER,
-                    GLES32.GL_LINEAR
+            GLES30.glTexParameteri(
+                    GLES30.GL_TEXTURE_2D,
+                    GLES30.GL_TEXTURE_MIN_FILTER,
+                    GLES30.GL_LINEAR
             )
-            GLES32.glTexParameteri(
-                    GLES32.GL_TEXTURE_2D,
-                    GLES32.GL_TEXTURE_MAG_FILTER,
-                    GLES32.GL_LINEAR
+            GLES30.glTexParameteri(
+                    GLES30.GL_TEXTURE_2D,
+                    GLES30.GL_TEXTURE_MAG_FILTER,
+                    GLES30.GL_LINEAR
             )
 
-            GLUtils.texImage2D(GLES32.GL_TEXTURE_2D, 0, bitmap, 0)
+            GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, bitmap, 0)
 
             //自动生成多级渐远
-            GLES32.glGenerateMipmap(GLES32.GL_TEXTURE_2D)
+            GLES30.glGenerateMipmap(GLES30.GL_TEXTURE_2D)
 
             bitmap.recycle()
-            GLES32.glBindTexture(GLES32.GL_TEXTURE_2D,0)
+            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,0)
             return texture
         }
 
-        fun genTextures(textures: IntArray, target: Int = GLES32.GL_TEXTURE_2D) {
+        fun genTextures(textures: IntArray, target: Int = GLES30.GL_TEXTURE_2D) {
             //首先生成纹理数组
-            GLES32.glGenTextures(textures.size, textures, 0)
+            GLES30.glGenTextures(textures.size, textures, 0)
 
             //C是面向过程的语言
             //绑定后的操作就是在该纹理上进行
@@ -60,7 +60,7 @@ class TextureHelper {
 //                    target: Int,  纹理目标
 //                    texture: Int  纹理id
 //                ): Unit
-                GLES32.glBindTexture(target, it)
+                GLES30.glBindTexture(target, it)
 
                 //2.配置纹理
                 //2.1 设置过滤参数
@@ -74,22 +74,22 @@ class TextureHelper {
                 //GL_NEAREST是最近点采样，min通常用这个
                 //GL_LINEAR是线性采样，mag通常用这个
                 //参数 GL_TEXTURE_MAG_FILTER 缩小过滤
-                GLES32.glTexParameteri(GLES32.GL_TEXTURE_2D, GLES32.GL_TEXTURE_MAG_FILTER, GLES32.GL_LINEAR)
+                GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR)
                 //参数 GL_TEXTURE_MAG_FILTER 放大过滤
-                GLES32.glTexParameteri(GLES32.GL_TEXTURE_2D, GLES32.GL_TEXTURE_MIN_FILTER, GLES32.GL_NEAREST)
+                GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_NEAREST)
 
                 //2.2. 设置纹理环绕
                 //S方向就是x方向，T方向是y方向
                 // 纹理坐标是0~1，如何超出范围的坐标，告诉OpenGL根据配置的参数进行处理
                 //GL_REPEAT 重复拉伸（平铺），GL_CLAMP_TO_EDGE 截取拉伸（边缘拉伸）
-                GLES32.glTexParameteri(GLES32.GL_TEXTURE_2D, GLES32.GL_TEXTURE_WRAP_S, GLES32.GL_REPEAT)
-                GLES32.glTexParameteri(GLES32.GL_TEXTURE_2D, GLES32.GL_TEXTURE_WRAP_T, GLES32.GL_CLAMP_TO_EDGE)
+                GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_S, GLES30.GL_REPEAT)
+                GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_CLAMP_TO_EDGE)
 
 
                 //操作完成后解绑
                 //3.解绑纹理
                 //传0表示与当前纹理解绑
-                GLES32.glBindTexture(target, 0)
+                GLES30.glBindTexture(target, 0)
             }
 
         }

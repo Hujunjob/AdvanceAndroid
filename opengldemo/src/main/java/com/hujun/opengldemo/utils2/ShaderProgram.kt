@@ -1,7 +1,7 @@
 package com.hujun.myapplication.utils
 
 import android.content.Context
-import android.opengl.GLES32
+import android.opengl.GLES30
 import android.text.TextUtils
 import android.util.Log
 import java.lang.IllegalStateException
@@ -24,17 +24,17 @@ class ShaderProgram(var context: Context, var vertexResourceId: Int, var fragmen
      * @param type GL_VERTEX_SHADER或GL_FRAGMENT_SHADER
      */
     private fun compileShader(shader: String, type: Int): Int {
-        var shaderId = GLES32.glCreateShader(type)
+        var shaderId = GLES30.glCreateShader(type)
 
-        GLES32.glShaderSource(shaderId, shader)
+        GLES30.glShaderSource(shaderId, shader)
 
-        GLES32.glCompileShader(shaderId)
+        GLES30.glCompileShader(shaderId)
 
         var status = IntArray(1)
-        GLES32.glGetShaderiv(shaderId, GLES32.GL_COMPILE_STATUS, status, 0)
-        if (status[0] != GLES32.GL_TRUE) {
+        GLES30.glGetShaderiv(shaderId, GLES30.GL_COMPILE_STATUS, status, 0)
+        if (status[0] != GLES30.GL_TRUE) {
             checkGLError("compileShader")
-            var info = GLES32.glGetShaderInfoLog(shaderId)
+            var info = GLES30.glGetShaderInfoLog(shaderId)
             throw IllegalStateException("compileShader失败 $type info:$info")
         }
 
@@ -42,21 +42,21 @@ class ShaderProgram(var context: Context, var vertexResourceId: Int, var fragmen
     }
 
     private fun linkProgram(vShader: Int, fShader: Int): Int {
-        var program = GLES32.glCreateProgram()
+        var program = GLES30.glCreateProgram()
 
-        GLES32.glAttachShader(program, vShader)
-        GLES32.glAttachShader(program, fShader)
+        GLES30.glAttachShader(program, vShader)
+        GLES30.glAttachShader(program, fShader)
 
-        GLES32.glLinkProgram(program)
+        GLES30.glLinkProgram(program)
 
         var status = IntArray(1)
-        GLES32.glGetProgramiv(program, GLES32.GL_LINK_STATUS, status, 0)
-        if (status[0] != GLES32.GL_TRUE) {
-            var info = GLES32.glGetShaderInfoLog(program)
+        GLES30.glGetProgramiv(program, GLES30.GL_LINK_STATUS, status, 0)
+        if (status[0] != GLES30.GL_TRUE) {
+            var info = GLES30.glGetShaderInfoLog(program)
             throw IllegalStateException("linkProgram失败 : ${status[0]},info:$info")
         }
-        GLES32.glDeleteShader(vShader)
-        GLES32.glDeleteShader(fShader)
+        GLES30.glDeleteShader(vShader)
+        GLES30.glDeleteShader(fShader)
         return program
     }
 
@@ -73,8 +73,8 @@ class ShaderProgram(var context: Context, var vertexResourceId: Int, var fragmen
             )
 
         if (!TextUtils.isEmpty(vShader) && !TextUtils.isEmpty(fShader)) {
-            var vShaderId = compileShader(vShader, GLES32.GL_VERTEX_SHADER)
-            var fShaderId = compileShader(fShader, GLES32.GL_FRAGMENT_SHADER)
+            var vShaderId = compileShader(vShader, GLES30.GL_VERTEX_SHADER)
+            var fShaderId = compileShader(fShader, GLES30.GL_FRAGMENT_SHADER)
             mProgram = linkProgram(vShaderId, fShaderId)
             if (mProgram>0){
                 Log.e(TAG, "linkProgram: 成功")
@@ -84,8 +84,8 @@ class ShaderProgram(var context: Context, var vertexResourceId: Int, var fragmen
         }
     }
     fun checkGLError(msg: String = "") {
-        var error = GLES32.glGetError()
-        if (error != GLES32.GL_NO_ERROR) {
+        var error = GLES30.glGetError()
+        if (error != GLES30.GL_NO_ERROR) {
             Log.e(TAG, "$msg checkGLError: $error")
         }
     }

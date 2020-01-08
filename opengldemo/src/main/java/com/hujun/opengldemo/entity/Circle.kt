@@ -1,6 +1,6 @@
 package com.hujun.myapplication.entity
 
-import android.opengl.GLES32
+import android.opengl.GLES30
 import android.util.Log
 
 /**
@@ -23,16 +23,16 @@ class Circle(mProgram: Int) : BaseEntity(mProgram) {
 
     override fun sizeChanged(width: Int, height: Int) {
         super.sizeChanged(width, height)
-        GLES32.glUseProgram(mProgram)
+        GLES30.glUseProgram(mProgram)
         val aspect = mWidth.toDouble() / mHeight.toDouble()
-        GLES32.glVertexAttrib1f(1, aspect.toFloat())
+        GLES30.glVertexAttrib1f(1, aspect.toFloat())
     }
 
     private fun setColor() {
-        var color = GLES32.glGetUniformLocation(mProgram, "aColor")
+        var color = GLES30.glGetUniformLocation(mProgram, "aColor")
         Log.e(TAG, "setColor: $color")
         checkGLError("setColor1")
-        GLES32.glUniform4f(color, 0.5f, 0.1f, 0.0f, 1.0f)
+        GLES30.glUniform4f(color, 0.5f, 0.1f, 0.0f, 1.0f)
         checkGLError("setColor2")
     }
 
@@ -42,13 +42,13 @@ class Circle(mProgram: Int) : BaseEntity(mProgram) {
             Log.e(TAG, "draw: error width cannot be 0")
             return
         }
-        GLES32.glUseProgram(mProgram)
-        GLES32.glBindVertexArray(VAO)
+        GLES30.glUseProgram(mProgram)
+        GLES30.glBindVertexArray(VAO)
 
-        GLES32.glDrawArrays(GLES32.GL_TRIANGLE_FAN, 0, mVertex.size / 3)
+        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, mVertex.size / 3)
 
-        GLES32.glBindVertexArray(0)
-        GLES32.glUseProgram(0)
+        GLES30.glBindVertexArray(0)
+        GLES30.glUseProgram(0)
         checkGLError("after draw")
     }
 
@@ -71,8 +71,8 @@ class Circle(mProgram: Int) : BaseEntity(mProgram) {
     }
 
     override fun handleVBO() {
-        GLES32.glBindBuffer(GLES32.GL_ARRAY_BUFFER, VBO)
-        GLES32.glVertexAttribPointer(0, 3, GLES32.GL_FLOAT, false, 3 * SIZE_OF_FLOAT, 0)
-        GLES32.glEnableVertexAttribArray(0)
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, VBO)
+        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 3 * SIZE_OF_FLOAT, 0)
+        GLES30.glEnableVertexAttribArray(0)
     }
 }

@@ -4,7 +4,7 @@ import android.content.Context
 import android.opengl.GLES11Ext
 import android.opengl.GLES20
 import android.opengl.GLES30.glReadPixels
-import android.opengl.GLES32
+import android.opengl.GLES30
 import android.util.Log
 import com.hujun.myapplication.entity.BaseEntity
 import com.hujun.myapplication.utils.MathUtils
@@ -181,8 +181,8 @@ abstract class BaseFilter(context: Context, vertexSourceId: Int, fragmentSourceI
 
 
     fun checkGLError(msg: String = "") {
-        var error = GLES32.glGetError()
-        if (error != GLES32.GL_NO_ERROR) {
+        var error = GLES30.glGetError()
+        if (error != GLES30.GL_NO_ERROR) {
             Log.e(TAG, "$msg checkGLError: ${MathUtils.intToHex(error)}")
         }
     }

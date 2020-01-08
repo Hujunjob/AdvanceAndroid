@@ -101,8 +101,8 @@ class MyGLRenderer(var myGLSurface: MyGLSurface) : GLSurfaceView.Renderer,
 //        mVirtualObject.updateModelMatrix(mAnchorMatrix, mScaleFactor)
 //        mVirtualObject.draw(viewmtx, projmtx, 1f)
     fun checkGLError(msg: String = "") {
-        var error = GLES32.glGetError()
-        if (error != GLES32.GL_NO_ERROR) {
+        var error = GLES30.glGetError()
+        if (error != GLES30.GL_NO_ERROR) {
             Log.e(TAG, "$msg checkGLError: ${MathUtils.intToHex(error)}")
         }
     }

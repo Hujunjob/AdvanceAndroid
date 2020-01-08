@@ -1,6 +1,6 @@
 package com.hujun.myapplication.entity
 
-import android.opengl.GLES32
+import android.opengl.GLES30
 import com.hujun.myapplication.utils.BufferHelper
 
 /**
@@ -20,37 +20,37 @@ class Triangle(mProgram: Int) : BaseEntity(mProgram) {
     }
 
     override fun handleVBO() {
-        GLES32.glBindBuffer(GLES32.GL_ARRAY_BUFFER, VBO)
-        GLES32.glVertexAttribPointer(
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, VBO)
+        GLES30.glVertexAttribPointer(
             0,
             3,
-            GLES32.GL_FLOAT,
+            GLES30.GL_FLOAT,
             false,
             6 * SIZE_OF_FLOAT,
             0
         )
-        GLES32.glEnableVertexAttribArray(0)
+        GLES30.glEnableVertexAttribArray(0)
 
-        GLES32.glVertexAttribPointer(
+        GLES30.glVertexAttribPointer(
             1,
             3,
-            GLES32.GL_FLOAT,
+            GLES30.GL_FLOAT,
             false,
             6 * SIZE_OF_FLOAT,
             3 * SIZE_OF_FLOAT
         )
-        GLES32.glEnableVertexAttribArray(1)
-        GLES32.glBindBuffer(GLES32.GL_ARRAY_BUFFER,0)
+        GLES30.glEnableVertexAttribArray(1)
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER,0)
         checkGLError("handleVBO")
     }
 
     override fun draw() {
         checkGLError("draw before")
-        GLES32.glUseProgram(mProgram)
+        GLES30.glUseProgram(mProgram)
 
-        GLES32.glBindVertexArray(VAO)
-        GLES32.glDrawArrays(GLES32.GL_TRIANGLES, 0, 3)
-        GLES32.glBindVertexArray(0)
+        GLES30.glBindVertexArray(VAO)
+        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 3)
+        GLES30.glBindVertexArray(0)
 
         checkGLError("draw after")
     }
