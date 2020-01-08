@@ -15,11 +15,9 @@ import java.nio.FloatBuffer
  * 负责渲染到屏幕
  */
 class ScreenFilter(
-    context: Context,
-    vertexSourceId: Int = R.raw.base_vertex,
-    fragmentSourceId: Int = R.raw.base_fragment
+    context: Context
 ) :
-    BaseFilter(context, vertexSourceId, fragmentSourceId) {
+    BaseFilter(context, R.raw.base_vertex, R.raw.base_fragment) {
 
     override fun onReady(width: Int, height: Int) {
         super.onReady(width, height)

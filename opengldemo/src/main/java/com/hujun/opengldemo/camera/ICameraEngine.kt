@@ -25,6 +25,8 @@ interface ICameraEngine {
 
     fun setResolution(width: Int, height: Int)
 
+    fun init()
+
     fun openCamera(isFront: Boolean): Boolean
 
     fun closeCamera(): Boolean

@@ -111,7 +111,7 @@ abstract class BaseFilter(context: Context, vertexSourceId: Int, fragmentSourceI
     /**
      * 获取shader里各个属性的索引值
      */
-    open fun initShaderIndex() {
+    protected open fun initShaderIndex() {
         Log.d(TAG, "initShaderIndex: ")
         //五、获取着色器程序变量的索引，通过索引来赋值
         //1. 顶点各个变量的索引
@@ -142,7 +142,7 @@ abstract class BaseFilter(context: Context, vertexSourceId: Int, fragmentSourceI
     /**
      * 初始化纹理坐标
      */
-    open fun initTexture() {
+    protected open fun initTexture() {
         Log.d(TAG, "initTexture: ")
         //纹理的坐标系采用Android系统坐标系
         //屏幕边缘4个点
@@ -183,14 +183,14 @@ abstract class BaseFilter(context: Context, vertexSourceId: Int, fragmentSourceI
     fun checkGLError(msg: String = "") {
         var error = GLES30.glGetError()
         if (error != GLES30.GL_NO_ERROR) {
-            Log.e(TAG, "$msg checkGLError: ${MathUtils.intToHex(error)}")
+//            Log.e(TAG, "$msg checkGLError: ${MathUtils.intToHex(error)}")
         }
     }
 
     /**
      * 初始化顶点坐标
      */
-    open fun initVertex() {
+    protected open fun initVertex() {
         Log.d(TAG, "initVertex: ")
         //采用OpenGL的坐标系
         //屏幕边缘4个点

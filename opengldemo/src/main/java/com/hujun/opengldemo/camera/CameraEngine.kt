@@ -63,11 +63,6 @@ class CameraEngine private constructor(var context: Context) : ICameraEngine {
         }
     }
 
-    init {
-        getCameraId()
-        mCamera = Camera.open(backId)
-    }
-
     override fun openCamera(isFront: Boolean): Boolean {
         Log.d(TAG, "openCamera: ")
 
@@ -150,6 +145,11 @@ class CameraEngine private constructor(var context: Context) : ICameraEngine {
 
     override fun setResolution(width: Int, height: Int) {
 
+    }
+
+    override fun init() {
+        getCameraId()
+        mCamera = Camera.open(backId)
     }
 
     private fun getCameraId() {

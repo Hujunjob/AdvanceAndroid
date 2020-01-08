@@ -2,7 +2,7 @@ package com.hujun.opengldemo.filter
 
 import android.content.Context
 import android.opengl.GLES11Ext
-import android.opengl.GLES30
+import android.opengl.GLES30.*
 import android.util.Log
 import com.hujun.opengldemo.R
 import com.hujun.opengldemo.utils.BufferHelper
@@ -40,7 +40,7 @@ class CameraFilter(
 //            offset: Int   //用数组中的第几个保存
 //        ): Unit
         mFramebuffers = IntArray(1)
-        GLES30.glGenFramebuffers(1, mFramebuffers, 0)
+        glGenFramebuffers(1, mFramebuffers, 0)
 
         //2、创建属于FBO的纹理
         mFramebufferTextures = IntArray(1)
@@ -48,7 +48,7 @@ class CameraFilter(
         TextureHelper.genTextures(mFramebufferTextures)
 
         //3、放FBO与纹理发生联系
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, mFramebufferTextures[0])
+        glBindTexture(GL_TEXTURE_2D, mFramebufferTextures[0])
 
         //生成2D纹理图像
         // C function void glTexImage2D ( GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels )
@@ -63,46 +63,46 @@ class CameraFilter(
 //            type: Int,
 //            pixels: Buffer?
 //        ): Unit
-        GLES30.glTexImage2D(
-            GLES30.GL_TEXTURE_2D,
+        glTexImage2D(
+            GL_TEXTURE_2D,
             0,
-            GLES30.GL_RGBA,
+            GL_RGBA,
             width,
             height,
             0,
-            GLES30.GL_RGBA,
-            GLES30.GL_UNSIGNED_BYTE,
+            GL_RGBA,
+            GL_UNSIGNED_BYTE,
             null
         )
 
         //创建FBO的深度缓冲
 //        mFramebufferDepths = IntArray(1)
-//        GLES30.glGenRenderbuffers(1, mFramebufferDepths, 0)
-//        GLES30.glBindRenderbuffer(GLES30.GL_RENDERBUFFER, mFramebufferDepths[0])
-//        GLES30.glRenderbufferStorage(
-//            GLES30.GL_RENDERBUFFER,
-//            GLES30.GL_DEPTH_COMPONENT,
+//        glGenRenderbuffers(1, mFramebufferDepths, 0)
+//        glBindRenderbuffer(GL_RENDERBUFFER, mFramebufferDepths[0])
+//        glRenderbufferStorage(
+//            GL_RENDERBUFFER,
+//            GL_DEPTH_COMPONENT,
 //            mWidth,
 //            mHeight
 //        )
-//        GLES30.glBindRenderbuffer(GLES30.GL_RENDERBUFFER, 0)
+//        glBindRenderbuffer(GL_RENDERBUFFER, 0)
 
         //2、创建属于FBO的深度
 //        //创建并配置纹理
 //        TextureHelper.genTextures(mFramebufferDepths)
 //
 //        //3、放FBO与纹理发生联系
-//        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, mFramebufferDepths[0])
+//        glBindTexture(GL_TEXTURE_2D, mFramebufferDepths[0])
 //
-//        GLES30.glTexImage2D(
-//            GLES30.GL_TEXTURE_2D,
+//        glTexImage2D(
+//            GL_TEXTURE_2D,
 //            0,
-//            GLES30.GL_DEPTH24_STENCIL8,
+//            GL_DEPTH24_STENCIL8,
 //            mWidth,
 //            mHeight,
 //            0,
-//            GLES30.GL_DEPTH_STENCIL,
-//            GLES30.GL_UNSIGNED_INT_24_8,
+//            GL_DEPTH_STENCIL,
+//            GL_UNSIGNED_INT_24_8,
 //            null
 //        )
 
@@ -119,44 +119,44 @@ class CameraFilter(
 //            level: Int
 //        )
         //让fbo和纹理绑定起来
-        GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, mFramebuffers[0])
-        GLES30.glFramebufferTexture2D(
-            GLES30.GL_FRAMEBUFFER,
-            GLES30.GL_COLOR_ATTACHMENT0,
-            GLES30.GL_TEXTURE_2D,
+        glBindFramebuffer(GL_FRAMEBUFFER, mFramebuffers[0])
+        glFramebufferTexture2D(
+            GL_FRAMEBUFFER,
+            GL_COLOR_ATTACHMENT0,
+            GL_TEXTURE_2D,
             mFramebufferTextures[0],
             0
         )
-//        GLES30.glFramebufferRenderbuffer(
-//            GLES30.GL_FRAMEBUFFER,
-//            GLES30.GL_DEPTH_ATTACHMENT,
-//            GLES30.GL_RENDERBUFFER,
+//        glFramebufferRenderbuffer(
+//            GL_FRAMEBUFFER,
+//            GL_DEPTH_ATTACHMENT,
+//            GL_RENDERBUFFER,
 //            mFramebufferDepths[0]
 //        )
 //
         checkGLError("onReady after")
 
         //配置完FBO纹理后，解绑
-        GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, 0)
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0)
+        glBindFramebuffer(GL_FRAMEBUFFER, 0)
+        glBindTexture(GL_TEXTURE_2D, 0)
     }
 
     override fun initShaderIndex() {
         super.initShaderIndex()
         Log.d(TAG, "initShaderIndex: ")
-        vMatrix = GLES30.glGetAttribLocation(mProgramId, "vMatrix")
+        vMatrix = glGetAttribLocation(mProgramId, "vMatrix")
     }
 
     override fun onDrawFrame(textureId: Int): Int {
         checkGLError("camera draw before")
         //1、设置视窗的宽高
-        GLES30.glViewport(0, 0, mWidth, mHeight)
+        glViewport(0, 0, mWidth, mHeight)
 
         //绑定FBO，因为是离屏渲染，需要渲染到FBO中
-        GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, mFramebuffers[0])
+        glBindFramebuffer(GL_FRAMEBUFFER, mFramebuffers[0])
 
         //2、使用着色器程序
-        GLES30.glUseProgram(mProgramId)
+        glUseProgram(mProgramId)
 
         //3、渲染传值
         // 先传递顶点
@@ -171,7 +171,7 @@ class CameraFilter(
 //            ptr: Buffer?
 //        ): Unit
         //参数分别为：顶点坐标的索引，每个值的长度，值类型，是否归一化，步进（每次取完size后跳过多少个值取下一次值），数据
-        GLES30.glVertexAttribPointer(vPosition, 3, GLES30.GL_FLOAT, false, 0, mVertexBuffer)
+        glVertexAttribPointer(vPosition, 3, GL_FLOAT, false, 0, mVertexBuffer)
 
         // C function void glVertexAttribPointer ( GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLint offset )
 //        external fun glVertexAttribPointer(
@@ -185,38 +185,38 @@ class CameraFilter(
 //        GLES20.glVertexAttribPointer()
 
         //传递值后需要激活
-        GLES30.glEnableVertexAttribArray(vPosition)
+        glEnableVertexAttribArray(vPosition)
 
         //传递纹理
         mTextureBuffer.clear()
 
         checkGLError("camera 1")
 
-        GLES30.glVertexAttribPointer(vCoord, 2, GLES30.GL_FLOAT, false, 0, mTextureBuffer)
+        glVertexAttribPointer(vCoord, 2, GL_FLOAT, false, 0, mTextureBuffer)
 
         checkGLError("camera 2")
-        GLES30.glEnableVertexAttribArray(vCoord)
+        glEnableVertexAttribArray(vCoord)
         checkGLError("camera 3")
         //4、变换矩阵
         if (mtx != null)
-            GLES30.glUniformMatrix4fv(vMatrix, 1, false, mtx, 0)
+            glUniformMatrix4fv(vMatrix, 1, false, mtx, 0)
         checkGLError("camera 4")
         //片元着色器
         //首先激活图层
-        GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
+        glActiveTexture(GL_TEXTURE0)
         checkGLError("camera 5")
         //绑定纹理
-        GLES30.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureId)
+        glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureId)
         checkGLError("camera 6")
         //然后再传递片元着色器参数
-        GLES30.glUniform1f(vTexture, 0f)
+        glUniform1f(vTexture, 0f)
         checkGLError("camera 7")
         //通知OpenGL绘制
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_STRIP, 0, 4)
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
 
-//        GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, 0)
+//        glBindFramebuffer(GL_FRAMEBUFFER, 0)
         //解绑纹理
-//        GLES30.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, 0)
+//        glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, 0)
         checkGLError("camera draw after")
         return mFramebufferTextures[0]
     }

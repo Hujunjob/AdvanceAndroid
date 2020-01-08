@@ -13,6 +13,7 @@ import com.hujun.myapplication.utils.ShaderProgram
 import com.hujun.opengldemo.entity.Cube
 import com.hujun.opengldemo.filter.CameraFilter
 import com.hujun.opengldemo.filter.ScreenFilter
+import com.hujun.opengldemo.record.MyMediaRecorder
 import com.hujun.slamdemo.CameraFactory
 import com.hujun.slamdemo.ICameraEngine
 import javax.microedition.khronos.egl.EGLConfig
@@ -24,7 +25,7 @@ import javax.microedition.khronos.opengles.GL10
 class MyGLRenderer(var myGLSurface: MyGLSurface) : GLSurfaceView.Renderer,
     SurfaceTexture.OnFrameAvailableListener {
     private lateinit var mCameraFilter: CameraFilter
-//    private lateinit var mTextureIds: IntArray
+    //    private lateinit var mTextureIds: IntArray
     private var mCameraTexureId = 0
     private lateinit var mScreenFilter: ScreenFilter
     var cameraEngine: ICameraEngine? = null
@@ -42,13 +43,15 @@ class MyGLRenderer(var myGLSurface: MyGLSurface) : GLSurfaceView.Renderer,
 
     private val mScaleFactor = 1.0f
 
-    private lateinit var shaderFilter:ShaderFilter
+    private lateinit var shaderFilter: ShaderFilter
 
     // Temporary matrix allocated here to reduce number of allocations for each frame.
     private val mAnchorMatrix = FloatArray(16)
 
-    companion object{
-        private val TAG = this::class.java.name.replace("${'$'}Companion","").split(".").last()
+    private lateinit var mMediaRecord: MyMediaRecorder
+
+    companion object {
+        private val TAG = this::class.java.name.replace("${'$'}Companion", "").split(".").last()
 
     }
 
@@ -93,11 +96,13 @@ class MyGLRenderer(var myGLSurface: MyGLSurface) : GLSurfaceView.Renderer,
         //最后用ScreenFilter将textureId渲染到屏幕上
         mScreenFilter.onDrawFrame(textureId)
 
+        //录制，将渲染的纹理id传递给录制
+        mMediaRecord.encodeFrame(textureId, mSurfaceTexture?.timestamp!!)
     }
 
 
-//        shaderFilter.draw()
-        // Update and draw the model and its shadow.
+    //        shaderFilter.draw()
+    // Update and draw the model and its shadow.
 //        mVirtualObject.updateModelMatrix(mAnchorMatrix, mScaleFactor)
 //        mVirtualObject.draw(viewmtx, projmtx, 1f)
     fun checkGLError(msg: String = "") {
@@ -113,12 +118,21 @@ class MyGLRenderer(var myGLSurface: MyGLSurface) : GLSurfaceView.Renderer,
         mScreenFilter.onReady(width, height)
         mCameraFilter.onReady(width, height)
 
+        //将渲染线程的EGLContext传给录制线程里用
+        mMediaRecord = MyMediaRecorder(
+            width,
+            height,
+            "/sdcard/test.mp4",
+            myGLSurface.context,
+            EGL14.eglGetCurrentContext()
+        )
+
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         cameraEngine =
             CameraFactory.createCameraEngine(CameraFactory.CameraType.CAMERA1, myGLSurface.context)
-
+        cameraEngine?.init()
         //准备画布
         var mTextureIds = IntArray(1)
         //通过OpenGL创建纹理id
@@ -147,8 +161,8 @@ class MyGLRenderer(var myGLSurface: MyGLSurface) : GLSurfaceView.Renderer,
 //        }
         generateTriangle()
         generateCube()
-    }
 
+    }
 
 
     //画布有可用数据时回调
@@ -178,4 +192,22 @@ class MyGLRenderer(var myGLSurface: MyGLSurface) : GLSurfaceView.Renderer,
         cube = Cube(myGLSurface.context, cubeProgram.mProgram)
     }
 
+
+    fun startRecording(recordType: MyGLSurface.RecordType) {
+        Log.d(TAG, "startRecording: $recordType")
+        val speed = when (recordType) {
+            MyGLSurface.RecordType.VERY_SLOW -> 0.3f
+            MyGLSurface.RecordType.SLOW -> 0.6f
+            MyGLSurface.RecordType.NORMAL -> 1f
+            MyGLSurface.RecordType.FAST -> 1.5f
+            MyGLSurface.RecordType.VERY_FAST -> 3f
+        }
+        mMediaRecord.setRecordSpeed(speed)
+        mMediaRecord.startRecord()
+    }
+
+    fun stopRecording() {
+        Log.d(TAG, "stopRecording: ")
+        mMediaRecord.stopRecord()
+    }
 }
